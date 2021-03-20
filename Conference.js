@@ -37,7 +37,7 @@ module.exports = function (eventDetails) {
             if (totalEventTime === 0 && date.getHours() === 17) {
                 console.log(date.toLocaleTimeString(), 'Networking Event')
                 
-                date.setMinutes(date.getMinutes() + 60) //60min lunch break
+                date.setMinutes(date.getMinutes() + 60) //60min networking event
 
                 date = new Date(2021, 2, 22, 9, 00, 00)
                 totalEventTime = 180 /// re assign time after network event for next track
