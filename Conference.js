@@ -1,63 +1,95 @@
-
 module.exports = function (eventDetails) {
     this.eventDetails = eventDetails;
     this.sortEvent = function () {
-        var date = new Date(2021, 2, 20, 9, 00, 00)
 
-        let eventArr = this.eventDetails.split('\n');
+        function EventStartTime(){
+            //set event time to 9:00AM
+            const date = new Date()
+            date.setHours(9)
+            date.setMinutes(0)
+            date.setSeconds(0)
+            return date;
+        }
 
-        const eventObj = [];
+        //string to array conversion
+        const eventArray = this.eventDetails.split('\n');
 
-        eventArr.map((item, index) => {
-            let talkLength = item.match(/\d+/);
-            eventObj.push({
-                talkLength: parseInt(talkLength[0]),
-                talk: item
-            });
-        })
+        //create event object with talkLength and talk value
+        function TalkDetails(){
+            let talk = [];
+            eventArray.map((item, index) => {
+                let talkLength = item.match(/\d+/);
+                talk.push({
+                    talkLength: parseInt(talkLength[0]),
+                    talkDetails: item
+                });
+            })
+            return talk;
+        }
 
-        let totalEventTime = (12 - date.getHours()) * 60; //total event time before lunch
+        const talk = new TalkDetails();
+        const totalTalks = talk.length;
 
-        const eventObjSize = eventArr.length;
+        let eventTime = new EventStartTime();
 
-        let count = 1;
+        const totalMinBeforeLunch = 180; //total event time in min before lunch 9:00AM - 12:00PM fixed 
+        const totalMinAfterLunch = 240; //total event time in min after lunch 1:00PM - 5:00PM
 
-        console.log(`Track ${count}:`)
+        //total min remaing before lunch
+        let totalMinRemaining = totalMinBeforeLunch; 
 
-        for (let index = 0; index < eventObjSize; index++) {
-            let indexExists = eventObj.findIndex((element) => element.talkLength === totalEventTime);
+        let track = 1;
 
-            if (totalEventTime === 0 && date.getHours() === 12) {
-                console.log(date.toLocaleTimeString(), 'Lunch')
-                date.setMinutes(date.getMinutes() + 60) //60min lunch break
-                totalEventTime = 240 /// re assign time after lunch event
-            }
-
-
-            if (totalEventTime === 0 && date.getHours() === 17) {
-                console.log(date.toLocaleTimeString(), 'Networking Event')
+        //total talks before lunch from the event start time, 9:00AM to 12:00PM = 180min
+        function talkBeforeLunch(){
+            const lunchBreakMin = 60;//60min lunch break
+            if (totalMinRemaining === 0 && eventTime.getHours() === 12) {
+                console.log(eventTime.toLocaleTimeString(), 'Lunch')
+                eventTime.setMinutes(eventTime.getMinutes() + lunchBreakMin) 
                 
-                date.setMinutes(date.getMinutes() + 60) //60min networking event
-
-                date = new Date(2021, 2, 22, 9, 00, 00)
-                totalEventTime = 180 /// re assign time after network event for next track
-                count = count + 1;
-                console.log(`Track ${count}:`)
+                //set totalMin after lunch
+                totalMinRemaining = totalMinAfterLunch 
             }
+        }
 
+        function talkAfterLunch(){
+            const networkingEventMin = 60; //60min networking event
+            if (totalMinRemaining === 0 && eventTime.getHours() === 17) {
+                console.log(eventTime.toLocaleTimeString(), 'Networking Event')
+                
+                eventTime.setMinutes(eventTime.getMinutes() + networkingEventMin) 
+
+                //after the event is over set new start time for next track 
+                eventTime = new EventStartTime()
+                totalMinRemaining = totalMinBeforeLunch;
+                track = track + 1;
+                console.log(`Track ${track}:`)
+            }
+        }
+
+        //handle talk based on the talk min
+        function handleTalk(indexExists){
             if (indexExists > -1) {
-                console.log(date.toLocaleTimeString(), eventObj[indexExists].talk)
+                console.log(eventTime.toLocaleTimeString(), talk[indexExists].talkDetails)
                 
-                date.setMinutes(date.getMinutes() + eventObj[indexExists].talkLength)
-                totalEventTime = totalEventTime - eventObj[indexExists].talkLength
-                eventObj.splice(indexExists, 1)
-            } else if (totalEventTime > 0) {
-                console.log(date.toLocaleTimeString(), eventObj[0].talk)
+                eventTime.setMinutes(eventTime.getMinutes() + talk[indexExists].talkLength)
+                totalMinRemaining = totalMinRemaining - talk[indexExists].talkLength
+                talk.splice(indexExists, 1)
+            } else if (totalMinRemaining > 0) {
+                console.log(eventTime.toLocaleTimeString(), talk[0].talkDetails)
                 
-                date.setMinutes(date.getMinutes() + eventObj[0].talkLength)
-                totalEventTime = totalEventTime - eventObj[0].talkLength
-                eventObj.splice(0, 1)
+                eventTime.setMinutes(eventTime.getMinutes() + talk[0].talkLength)
+                totalMinRemaining = totalMinRemaining - talk[0].talkLength
+                talk.splice(0, 1)
             }
+        }
+
+        console.log(`Track ${track}:`)
+        for (let index = 0; index < totalTalks; index++) {
+            let indexExists = talk.findIndex((element) => element.talkLength === totalMinRemaining);
+            talkAfterLunch();
+            talkBeforeLunch();
+            handleTalk(indexExists);
         }
 
     }
