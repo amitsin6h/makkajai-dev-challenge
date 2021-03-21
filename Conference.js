@@ -14,7 +14,7 @@ module.exports = function (eventDetails) {
         //string to array conversion
         const eventArray = this.eventDetails.split('\n');
 
-        //create event object with talkLength and talk value
+        //creating event object with talkLength and talk details
         function TalkDetails(){
             let talk = [];
             eventArray.map((item, index) => {
