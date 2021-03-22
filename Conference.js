@@ -38,7 +38,11 @@ module.exports = function (eventData) {
     const totalMinAfterLunch = 240; //total event time in min after lunch 1:00PM - 5:00PM
 
     //total min remaing before lunch
-    let totalMinRemaining = totalMinBeforeLunch; 
+    let totalMinRemaining = totalMinBeforeLunch;
+    
+    const lunchBreakMin = 60;//60min lunch break
+    const networkingEventMin = 60; //60min networking event
+
 
     let track = 1;
 
@@ -49,7 +53,7 @@ module.exports = function (eventData) {
 
         //total talks before lunch from the event start time, 9:00AM to 12:00PM = 180min
         function talkBeforeLunch(){
-            const lunchBreakMin = 60;//60min lunch break
+            
             if (totalMinRemaining === 0 && eventTime.getHours() === 12) {
                 result = result.concat(eventTime.toLocaleTimeString(),' ', 'Lunch', '\n')
                 eventTime.setMinutes(eventTime.getMinutes() + lunchBreakMin) 
@@ -60,12 +64,9 @@ module.exports = function (eventData) {
 
 
         function talkAfterLunch(){
-            const networkingEventMin = 60; //60min networking event
             if (totalMinRemaining === 0 && eventTime.getHours() === 17) {
                 result = result.concat(eventTime.toLocaleTimeString(),' ', 'Networking Event', '\n')
-                
                 eventTime.setMinutes(eventTime.getMinutes() + networkingEventMin) 
-
                 //after the event is over set new start time for next track 
                 eventTime = new EventStartTime()
                 totalMinRemaining = totalMinBeforeLunch;
@@ -79,13 +80,11 @@ module.exports = function (eventData) {
         function handleTalk(indexExists){
             if (indexExists > -1) {
                 result = result.concat(eventTime.toLocaleTimeString(),' ', talk[indexExists].talkDetails, '\n')
-
                 eventTime.setMinutes(eventTime.getMinutes() + talk[indexExists].talkLength)
                 totalMinRemaining = totalMinRemaining - talk[indexExists].talkLength
                 talk.splice(indexExists, 1)
             } else if (totalMinRemaining > 0) {
                 result = result.concat(eventTime.toLocaleTimeString(),' ', talk[0].talkDetails, '\n')
-
                 eventTime.setMinutes(eventTime.getMinutes() + talk[0].talkLength)
                 totalMinRemaining = totalMinRemaining - talk[0].talkLength
                 talk.splice(0, 1)
