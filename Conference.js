@@ -44,7 +44,7 @@ module.exports = function (eventData) {
 
     let result = "";
 
-
+    // public method 
     this.sortEvent = function () {
 
         //total talks before lunch from the event start time, 9:00AM to 12:00PM = 180min
