@@ -19,6 +19,10 @@ Ruby on Rails Legacy App Maintenance - 60min
 A World Without HackerNews - 30min 
 User Interface CSS in Rails Apps - 30min`);
 
-let outputData = conference.sortEvent();
+try {
+    let outputData = conference.sortEvent();
+    console.log(outputData)
+} catch (error) {
+    console.error(error)
+}
 
-console.log(outputData)
